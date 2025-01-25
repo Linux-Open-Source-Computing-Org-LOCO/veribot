@@ -2,4 +2,7 @@ import discord
 import resend
 from functions import *
 
-print(readToken(1))
+discordToken = readToken(0)
+resendToken = readToken(1)
+
+print(makeOTP())
