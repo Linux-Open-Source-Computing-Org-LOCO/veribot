@@ -1,4 +1,4 @@
-import math, time, random
+import time, random
 
 def readToken(line):
     token = ""
@@ -16,9 +16,28 @@ def makeOTP():
     try:
         number = (int(time.clock_gettime(time.CLOCK_REALTIME) / random.random()))
 
-        otp = number
+        otp = number # should be 10 digits
 
     except:
         print("Error in OTP creation.")
 
     return otp
+
+def verifyTTUEmail(email):
+    verified = False
+
+    try:
+        for i in range(0, len(email)):
+            if email[i] == '@':
+                break
+
+        if email[i, len(email)].lower() == "@ttu.edu":
+           verified = True
+
+        else:
+            print("Invalid email.")
+
+    except:
+        print("Invalid expression.")
+
+    return verified
