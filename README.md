@@ -1,0 +1,2 @@
+# veribot
+Verification via email
