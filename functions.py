@@ -27,12 +27,8 @@ def verifyTTUEmail(email):
     verified = False
 
     try:
-        for i in range(0, len(email)):
-            if email[i] == '@':
-                break
-
-        if email[i, len(email)].lower() == "@ttu.edu":
-           verified = True
+        if "@ttu.edu" in email.lower() or "@ttuhsc.edu" in email.lower():
+            verified = True
 
         else:
             print("Invalid email.")
