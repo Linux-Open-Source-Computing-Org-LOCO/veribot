@@ -1,4 +1,5 @@
 import time, random
+from string import Template
 
 def readToken(line):
     token = ""
@@ -61,3 +62,24 @@ def readCachedOTP(user_id):
         print(f"Cached OTP file {user_id} does not exist.")
 
     return cachedOTP
+
+def compareOTP(enteredOTP, user_id):
+    valid = False
+    readOTP = readCachedOTP(user_id)
+    if enteredOTP == readOTP:
+        valid = True
+
+    return valid
+
+def getEmailHTML(user_name, OTP):
+    email = "Internal error."
+    try:
+        with open("message.html", "r") as messageFile:
+            message = messageFile.read()
+            email = Template(message).safe_substitute(username=user_name, OTPcode=OTP)
+            messageFile.close()
+
+    except:
+        print("Missing email HTML message file.")
+
+    return email
