@@ -15,9 +15,11 @@ def makeOTP():
     otp = "If you are recieving this, there has been a mistake.\nPlease contact one of the officers for assistance."
 
     try:
-        number = (int(time.clock_gettime(time.CLOCK_REALTIME) / random.random()))
+        number = str(int(time.clock_gettime(time.CLOCK_REALTIME) / random.random()))
+        print()
 
-        otp = number # should be 10 digits
+        otp = number[0:5]
+        int(otp)
 
     except:
         print("Error in OTP creation.")
