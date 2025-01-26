@@ -37,3 +37,27 @@ def verifyTTUEmail(email):
         print("Invalid expression.")
 
     return verified
+
+def cacheOTP(user_id, OTP):
+    try:
+        with open(f".cache/{user_id}", "r") as cachedOTPFile:
+            cachedOTPFile.close()
+            Path.unlink(cachedOTPFile)
+            cacheOTP(user_id, OTP)
+
+    except:
+        with open(f".cache/{user_id}", "w") as cachedOTPFile:
+            cachedOTPFile.write(str(OTP))
+            cachedOTPFile.close()
+
+def readCachedOTP(user_id):
+    cachedOTP = -1
+    try:
+        with open(f".cache/{user_id}", "r") as cachedOTPFile:
+            cachedOTP = cachedOTPFile.readlines()[0].rstrip()
+            cachedOTPFile.close()
+
+    except:
+        print(f"Cached OTP file {user_id} does not exist.")
+
+    return cachedOTP

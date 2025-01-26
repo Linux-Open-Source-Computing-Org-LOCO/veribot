@@ -1,2 +1,4 @@
 .tokens
 __pycache__/*
+.cache/*
+test.py
