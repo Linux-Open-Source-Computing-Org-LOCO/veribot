@@ -3,13 +3,12 @@ from discord import app_commands
 import resend
 from functions import *
 import time
+from pathlib import Path
 
 discordToken = readToken(0)
 resend.api_key = readToken(1)
 myGuild = discord.Object(1066163609190801500)
 OTPTries = {}
-OTPTime = {}
-verifyTime = {}
 
 class myClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
@@ -49,6 +48,7 @@ async def verify(interaction: discord.Interaction, email: str):
                 "html": getEmailHTML(member, otp)
             }
             print(resend.Emails.send(params))
+            OTPTries[member.id] = 3
 
         elif verifyTTUEmail(email) and not readCachedOTP(member.id) == -1:
             await interaction.response.send_message(f"{member}, your One-Time Passcode already exists.\nPlease try checking your \"Junk Mail.\"", ephemeral = True)
@@ -64,25 +64,28 @@ async def verify(interaction: discord.Interaction, email: str):
 
 @client.tree.command()
 @app_commands.describe(otp = "The One-Time Passcode that you recieved at your TechMail address.")
-async def otp(interaction: discord.Interaction, otp: int):
+async def otp(interaction: discord.Interaction, otp: str):
     quarantineChannel = client.get_channel(1332534981121150977)
     logChannel = client.get_channel(1332518941633024010)
     member = interaction.user
+    Role = interaction.guild.get_role(1331839649689243740)
+    int(otp)
     if not readCachedOTP(member.id) == -1:
         if OTPTries[member.id] > 0:
             if compareOTP(otp, member.id):
                 await logChannel.send(content = f"<@{member.id}> verified successfully.")
                 await interaction.response.send_message(f"{member}, you have verified successfully. You will be redirected shortly.", ephemeral = True)
-                await member.add_roles(1331839649689243740)
+                await member.add_roles(Role)
                 Path.unlink(f".cache/{member.id}")
 
             else:
                 await logChannel.send(content = f"<@{member.id}> used an incorrect OTP.")
-                await interaction.response.send_message(f"{member}, please try again.")
+                await interaction.response.send_message(f"{member}, please try again.", ephemeral = True)
                 OTPTries[member.id] = OTPTries[member.id] - 1
 
         else:
             await logChannel.send(content = f"<@{member.id}> ran out of attempts to enter OTP.")
-            await interaction.response.send_message(f"{member}, please verify again when the cooldown expires.")
+            await interaction.response.send_message(f"{member}, please verify again when the cooldown expires.", ephemeral = True)
+            Path.unlink(f".cache/{member.id}")
 
 client.run(discordToken)
