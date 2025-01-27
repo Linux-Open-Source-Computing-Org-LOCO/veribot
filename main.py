@@ -34,6 +34,7 @@ async def verify(interaction: discord.Interaction, email: str):
     if interaction.channel == quarantineChannel:
         if verifyTTUEmail(email):
             await interaction.response.send_message(f"{member}, an email containing a One-Time Passcode will be sent to: {email}\n**Please, check your \"Junk Email\"**", ephemeral = True)
+            await logChannel.send(content = f"{member} entered a valid TTU/TTUHSC email: {email}")
 
         else:
             await interaction.response.send_message(f"{email} is not a valid TechMail address. Please try again.", ephemeral = True)
@@ -43,6 +44,11 @@ async def verify(interaction: discord.Interaction, email: str):
         await logChannel.send(content = f"{member} attempted to verify from outside quarantine.")
         print(f"{member} attempted to verify illegally.")
 
+@client.tree.command()
+@app_commands.describe(otp = "The One-Time Passcode that you recieved at your TechMail address.")
+async def otp(interaction: discord.Interaction, otp: int):
+    quarantineChannel = client.get_channel(1332534981121150977)
+    logChannel = client.get_channel(1332518941633024010)
 
 
 client.run(discordToken)

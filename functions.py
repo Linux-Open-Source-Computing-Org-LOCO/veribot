@@ -29,7 +29,7 @@ def verifyTTUEmail(email):
     verified = False
 
     try:
-        if "@ttu.edu" in email.lower() or "@ttuhsc.edu" in email.lower():
+        if ("@ttu.edu" in email.lower() or "@ttuhsc.edu" in email.lower()) and (email.lower()[-3:len(email)] == "edu"):
             verified = True
 
         else:
