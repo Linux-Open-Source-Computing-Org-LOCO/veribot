@@ -2,10 +2,14 @@ import discord
 from discord import app_commands
 import resend
 from functions import *
+import time
 
 discordToken = readToken(0)
 resend.api_key = readToken(1)
 myGuild = discord.Object(1066163609190801500)
+OTPTries = {}
+OTPTime = {}
+verifyTime = {}
 
 class myClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
@@ -31,24 +35,54 @@ async def verify(interaction: discord.Interaction, email: str):
     quarantineChannel = client.get_channel(1332534981121150977)
     logChannel = client.get_channel(1332518941633024010)
     member = interaction.user
+
     if interaction.channel == quarantineChannel:
-        if verifyTTUEmail(email):
+        if verifyTTUEmail(email) and readCachedOTP(member.id) == -1:
             await interaction.response.send_message(f"{member}, an email containing a One-Time Passcode will be sent to: {email}\n**Please, check your \"Junk Email\"**", ephemeral = True)
-            await logChannel.send(content = f"{member} entered a valid TTU/TTUHSC email: {email}")
+            await logChannel.send(content = f"<@{member.id}> entered a valid TTU/TTUHSC email: {email}")
+            otp = makeOTP()
+            cacheOTP(member.id, otp)
+            params: resend.Emails.SendParams = {
+                "from": "Linux and Open-Source Computing Organization <loco@shellfish.racing>",
+                "to": email,
+                "subject": "Your LOCO One-Time Passcode",
+                "html": getEmailHTML(member, otp)
+            }
+            print(resend.Emails.send(params))
+
+        elif verifyTTUEmail(email) and not readCachedOTP(member.id) == -1:
+            await interaction.response.send_message(f"{member}, your One-Time Passcode already exists.\nPlease try checking your \"Junk Mail.\"", ephemeral = True)
+            await logChannel.send(content =  f"<@{member.id}> attempted to generate more than one OTP.")
 
         else:
             await interaction.response.send_message(f"{email} is not a valid TechMail address. Please try again.", ephemeral = True)
-            await logChannel.send(content = f"{member} attempted to verify using {email}")
+            await logChannel.send(content = f"<@{member.id}> attempted to verify using {email}")
 
     else:
-        await logChannel.send(content = f"{member} attempted to verify from outside quarantine.")
-        print(f"{member} attempted to verify illegally.")
+        await logChannel.send(content = f"({member.id}){member} attempted to verify from outside quarantine.")
+        print(f"<@{member} attempted to verify illegally.")
 
 @client.tree.command()
 @app_commands.describe(otp = "The One-Time Passcode that you recieved at your TechMail address.")
 async def otp(interaction: discord.Interaction, otp: int):
     quarantineChannel = client.get_channel(1332534981121150977)
     logChannel = client.get_channel(1332518941633024010)
+    member = interaction.user
+    if not readCachedOTP(member.id) == -1:
+        if OTPTries[member.id] > 0:
+            if compareOTP(otp, member.id):
+                await logChannel.send(content = f"<@{member.id}> verified successfully.")
+                await interaction.response.send_message(f"{member}, you have verified successfully. You will be redirected shortly.", ephemeral = True)
+                await member.add_roles(1331839649689243740)
+                Path.unlink(f".cache/{member.id}")
 
+            else:
+                await logChannel.send(content = f"<@{member.id}> used an incorrect OTP.")
+                await interaction.response.send_message(f"{member}, please try again.")
+                OTPTries[member.id] = OTPTries[member.id] - 1
+
+        else:
+            await logChannel.send(content = f"<@{member.id}> ran out of attempts to enter OTP.")
+            await interaction.response.send_message(f"{member}, please verify again when the cooldown expires.")
 
 client.run(discordToken)
