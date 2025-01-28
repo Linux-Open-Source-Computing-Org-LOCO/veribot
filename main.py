@@ -26,6 +26,19 @@ client = myClient(intents = intents)
 async def on_ready():
     print(f"Logged in as {client.user} ({client.user.id})")
     logChannel = client.get_channel(1332518941633024010)
+    for root, dirs, files in Path(".cache").walk(on_error = print):
+        try:
+            numCleared = 0
+            for name in files:
+                print("Clearing " + str(root) + "/" + str(name))
+                Path.unlink(str(root) + "/" + str(name))
+                numCleared += 1
+
+            await logChannel.send(content = f"Cleared {numCleared} cached OTPs.")
+
+        except:
+            await logChannel.send(content = "Error upon clearing cache.")
+
     await logChannel.send(content = "Ready.")
 
 @client.tree.command()
