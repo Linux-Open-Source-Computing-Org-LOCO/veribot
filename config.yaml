@@ -1,0 +1,7 @@
+guildID:
+channels:
+  quarantineChannelID:
+  logChannelID:
+  deletedMessagesChannelID:
+roles:
+  verifiedRoleID:
