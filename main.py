@@ -9,7 +9,7 @@ discordToken = readToken(0)
 resend.api_key = readToken(1)
 myGuild = discord.Object(1066163609190801500)
 OTPTries = {}
-
+OTPWaitlist = {}
 class myClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents = intents)
@@ -49,6 +49,7 @@ async def verify(interaction: discord.Interaction, email: str):
             }
             print(resend.Emails.send(params))
             OTPTries[member.id] = 3
+            OTPWaitlist[member.id] = time.clock_gettime(time.CLOCK_REALTIME)
 
         elif verifyTTUEmail(email) and not readCachedOTP(member.id) == -1:
             await interaction.response.send_message(f"{member}, your One-Time Passcode already exists.\nPlease try checking your \"Junk Mail.\"", ephemeral = True)
@@ -85,7 +86,15 @@ async def otp(interaction: discord.Interaction, otp: str):
 
         else:
             await logChannel.send(content = f"<@{member.id}> ran out of attempts to enter OTP.")
-            await interaction.response.send_message(f"{member}, please verify again when the cooldown expires.", ephemeral = True)
-            Path.unlink(f".cache/{member.id}")
 
+            timeElapsed = time.clock_gettime(time.CLOCK_REALTIME) - OTPWaitlist[member.id]
+            timeLeft = 1800 - timeElapsed
+
+            if(timeLeft < 0):
+                await interaction.response.send_message(f"{member}, please verify again.", ephemeral = True)
+                Path.unlink(f".cache/{member.id}")
+                OTPWaitlist.pop(member.id)
+                OTPTries.pop(member.id)
+            else:
+                await interaction.response.send_message(f"{member}, please wait {timeLeft} seconds.", ephemeral = True)
 client.run(discordToken)
