@@ -7,7 +7,7 @@ from pathlib import Path
 
 discordToken = readToken(0)
 resend.api_key = readToken(1)
-myGuild = discord.Object(1066163609190801500)
+myGuild = discord.Object(readConfig("guildID"))
 OTPTries = {}
 OTPWaitlist = {}
 class myClient(discord.Client):
@@ -20,14 +20,18 @@ class myClient(discord.Client):
         await self.tree.sync(guild = myGuild)
 
 intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
 client = myClient(intents = intents)
 
-
+logChannelID = int(readConfig("channel_logChannelID"))
+quarantineChannelID = int(readConfig("channel_quarantineChannelID"))
+deletedMessagesChannelID = int(readConfig("channel_deletedMessagesChannelID"))
 
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user} ({client.user.id})")
-    logChannel = client.get_channel(1332518941633024010)
+    logChannel = client.get_channel(logChannelID)
     try:
         for root, dirs, files in Path(".cache").walk(on_error = print):
             numCleared = 0
@@ -46,10 +50,9 @@ async def on_ready():
 @client.tree.command()
 @app_commands.describe(email = "Your TTU or TTUHSC TechMail address.")
 async def verify(interaction: discord.Interaction, email: str):
-    quarantineChannel = client.get_channel(1332534981121150977)
-    logChannel = client.get_channel(1332518941633024010)
     member = interaction.user
-
+    logChannel = client.get_channel(logChannelID)
+    quarantineChannel = client.get_channel(quarantineChannelID)
     if interaction.channel == quarantineChannel:
         if verifyTTUEmail(email) and readCachedOTP(member.id) == -1:
             await interaction.response.send_message(f"{member}, an email containing a One-Time Passcode will be sent to: {email}\n**Please, check your \"Junk Email\"**", ephemeral = True)
@@ -57,10 +60,10 @@ async def verify(interaction: discord.Interaction, email: str):
             otp = makeOTP()
             cacheOTP(member.id, otp)
             params: resend.Emails.SendParams = {
-                "from": "Linux and Open-Source Computing Organization <loco@shellfish.racing>",
+                "from": readConfig("text_emailAddress"),
                 "to": email,
-                "subject": "Your LOCO One-Time Passcode",
-                "html": getEmailHTML(member, otp)
+                "subject": readConfig("text_emailSubject"),
+                "html": getEmailHTML(member, otp, readConfig("text_fullClubTitle"))
             }
             print(resend.Emails.send(params))
             OTPTries[member.id] = 3
@@ -81,10 +84,9 @@ async def verify(interaction: discord.Interaction, email: str):
 @client.tree.command()
 @app_commands.describe(otp = "The One-Time Passcode that you recieved at your TechMail address.")
 async def otp(interaction: discord.Interaction, otp: str):
-    quarantineChannel = client.get_channel(1332534981121150977)
-    logChannel = client.get_channel(1332518941633024010)
     member = interaction.user
-    Role = interaction.guild.get_role(1331839649689243740)
+    Role = interaction.guild.get_role(readConfig("role_verifiedRoleID"))
+    logChannel = client.get_channel(logChannelID)
     int(otp)
     if not readCachedOTP(member.id) == -1:
         if OTPTries[member.id] > 0:

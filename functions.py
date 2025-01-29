@@ -1,5 +1,6 @@
 import time, random
 from string import Template
+import yaml
 
 def readToken(line):
     token = ""
@@ -72,15 +73,40 @@ def compareOTP(enteredOTP, user_id):
 
     return valid
 
-def getEmailHTML(user_name, OTP):
+def getEmailHTML(user_name, OTP, club_title):
     email = "Internal error."
     try:
         with open("message.html", "r") as messageFile:
             message = messageFile.read()
-            email = Template(message).safe_substitute(username=user_name, OTPcode=OTP)
+            email = Template(message).safe_substitute(username = user_name, OTPcode = OTP, fullClubTitle = club_title)
             messageFile.close()
 
     except:
         print("Missing email HTML message file.")
 
     return email
+
+def readConfig(key):
+    value = -1
+    try:
+        with open("config.yaml") as configFile:
+            config = yaml.safe_load(configFile)
+            if "channel_" in key:
+                value = config["channels"][key.removeprefix("channel_")]
+
+            elif "role_" in key:
+                value = config["roles"][key.removeprefix("role_")]
+
+            elif "text_" in key:
+                value = config["text"][key.removeprefix("text_")]
+
+            else:
+                value = config[key]
+
+            configFile.close()
+
+                
+    except:
+        sys.exit("FATAL: Error reading config file.")
+
+    return value

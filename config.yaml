@@ -1,7 +1,11 @@
-guildID:
+guildID: 1066163609190801500
 channels:
-  quarantineChannelID:
-  logChannelID:
-  deletedMessagesChannelID:
+  quarantineChannelID: 1332534981121150977
+  logChannelID: 1332518941633024010
+  deletedMessagesChannelID: 1333256868704944241
 roles:
-  verifiedRoleID:
+  verifiedRoleID: 1331839649689243740
+text:
+  fullClubTitle: "Linux and Open-source Computing Orgainzation"
+  emailAddress: "Linux and Open-source Computing Organization <loco@shellfish.racing>"
+  emailSubject: "Your LOCO One-Time Passcode"
