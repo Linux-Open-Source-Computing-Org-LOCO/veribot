@@ -22,6 +22,7 @@ class myClient(discord.Client):
 intents = discord.Intents.default()
 intents.members = True
 intents.guilds = True
+intents.message_content = True
 client = myClient(intents = intents)
 
 logChannelID = int(readConfig("channel_logChannelID"))
@@ -114,4 +115,23 @@ async def otp(interaction: discord.Interaction, otp: str):
                 OTPTries.pop(member.id)
             else:
                 await interaction.response.send_message(f"{member}, please wait {timeLeft} seconds.", ephemeral = True)
+
+@client.event
+async def on_message(message):
+    deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
+    if message.channel.id == quarantineChannelID:
+        embeds = [discord.Embed(title = f"{message.author.display_name} ({message.author.name})", description = message.content, url = f"https://discord.com/users/{message.author.id}")]
+        embeds[0].set_thumbnail(url = message.author.avatar)
+        if len(message.attachments) == 1:
+            print(message.attachments[0].url)
+            embeds[0].set_image(url = message.attachments[0].url)
+
+        elif len(message.attachments) > 1:
+            embeds[0].set_image(url = message.attachments[0].proxy_url)
+            for Attachment in message.attachments:
+                embeds.append(discord.Embed().set_image(url = Attachment.proxy_url))
+
+        await deletedMessagesChannel.send(embeds = embeds)
+        await message.delete()
+
 client.run(discordToken)
