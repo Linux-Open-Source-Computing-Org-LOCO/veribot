@@ -56,7 +56,7 @@ async def verify(interaction: discord.Interaction, email: str):
     quarantineChannel = client.get_channel(quarantineChannelID)
     if interaction.channel == quarantineChannel:
         if verifyTTUEmail(email) and readCachedOTP(member.id) == -1:
-            await interaction.response.send_message(f"{member}, an email containing a One-Time Passcode will be sent to: {email}\n**Please, check your \"Junk Email\"**", ephemeral = True)
+            await interaction.response.send_message(f"{member}, an email containing a One-Time Passcode will be sent to: {email}\n**Please, check your \"Junk Email\"**\nThen, run `/otp` with the code.", ephemeral = True)
             await logChannel.send(content = f"<@{member.id}> entered a valid TTU/TTUHSC email: {email}")
             otp = makeOTP()
             cacheOTP(member.id, otp)
@@ -115,6 +115,11 @@ async def otp(interaction: discord.Interaction, otp: str):
                 OTPTries.pop(member.id)
             else:
                 await interaction.response.send_message(f"{member}, please wait {timeLeft} seconds.", ephemeral = True)
+
+    else:
+        await logChannel.send(content = f"<@{member.id}> attempted to enter an OTP without verifying.")
+        await interaction.response.send_message(f"{member}, it appears as though you have not run `/verify`.")
+
 
 @client.event
 async def on_message(message):
