@@ -125,7 +125,7 @@ async def otp(interaction: discord.Interaction, otp: str):
 async def on_message(message):
     deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
     if message.channel.id == quarantineChannelID:
-        if message.author.getRole(readConfig("role_adminRoleID")) is not None:
+        if message.author.get_role(readConfig("role_adminRoleID")) is not None:
             embeds = [discord.Embed(title = f"{message.author.display_name} ({message.author.name})", description = message.content, url = f"https://discord.com/users/{message.author.id}")]
             embeds[0].set_thumbnail(url = message.author.avatar)
             if len(message.attachments) == 1:
