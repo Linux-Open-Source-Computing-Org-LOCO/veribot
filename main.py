@@ -125,18 +125,59 @@ async def otp(interaction: discord.Interaction, otp: str):
 async def on_message(message):
     deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
     if message.channel.id == quarantineChannelID:
-        embeds = [discord.Embed(title = f"{message.author.display_name} ({message.author.name})", description = message.content, url = f"https://discord.com/users/{message.author.id}")]
-        embeds[0].set_thumbnail(url = message.author.avatar)
-        if len(message.attachments) == 1:
-            print(message.attachments[0].url)
-            embeds[0].set_image(url = message.attachments[0].url)
+        if message.author.getRole(readConfig("role_adminRoleID")) is not None:
+            embeds = [discord.Embed(title = f"{message.author.display_name} ({message.author.name})", description = message.content, url = f"https://discord.com/users/{message.author.id}")]
+            embeds[0].set_thumbnail(url = message.author.avatar)
+            if len(message.attachments) == 1:
+                print(message.attachments[0].url)
+                embeds[0].set_image(url = message.attachments[0].url)
 
-        elif len(message.attachments) > 1:
-            embeds[0].set_image(url = message.attachments[0].proxy_url)
-            for Attachment in message.attachments:
-                embeds.append(discord.Embed().set_image(url = Attachment.proxy_url))
+            elif len(message.attachments) > 1:
+                embeds[0].set_image(url = message.attachments[0].proxy_url)
+                for Attachment in message.attachments:
+                    embeds.append(discord.Embed().set_image(url = Attachment.proxy_url))
 
-        await deletedMessagesChannel.send(embeds = embeds)
-        await message.delete()
+            await deletedMessagesChannel.send(embeds = embeds)
+
+        else:
+            embeds = [discord.Embed(title = f"{message.author.display_name} ({message.author.name})", description = message.content, url = f"https://discord.com/users/{message.author.id}")]
+            embeds[0].set_thumbnail(url = message.author.avatar)
+            if len(message.attachments) == 1:
+                print(message.attachments[0].url)
+                embeds[0].set_image(url = message.attachments[0].url)
+
+            elif len(message.attachments) > 1:
+                embeds[0].set_image(url = message.attachments[0].proxy_url)
+                for Attachment in message.attachments:
+                    embeds.append(discord.Embed().set_image(url = Attachment.proxy_url))
+
+            await deletedMessagesChannel.send(embeds = embeds)
+            await message.delete()
+
+@client.event
+async def on_member_update(before, after):
+    deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
+    if before.display_name != after.display_name:
+        await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
+
+    elif before.display_avatar != after.display_avatar:
+        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
+
+    elif before.display_name != after.display_name and before.display_avatar != after.display_avatar:
+        await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
+        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
+
+@client.event
+async def on_user_update(before, after):
+    deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
+    if before.avatar != after.avatar:
+        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar from [this]({before.avatar}) to [this]({after.avatar}).")
+
+    elif before.name != after.name:
+        await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
+
+    elif before.avatar != after.avatar and before.name != after.name:
+        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.avatar}).")
+        await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
 
 client.run(discordToken)
