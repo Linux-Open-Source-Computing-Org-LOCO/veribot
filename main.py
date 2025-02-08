@@ -157,27 +157,29 @@ async def on_message(message):
 @client.event
 async def on_member_update(before, after):
     deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
-    if before.display_name != after.display_name:
-        await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
+    if before.get_role(readConfig("role_verifiedRoleID")) is None and before.get_role(readConfig("role_adminRoleID")) is None:
+        if before.display_name != after.display_name:
+            await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
 
-    elif before.display_avatar != after.display_avatar:
-        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
+        elif before.display_avatar != after.display_avatar:
+            await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
 
-    elif before.display_name != after.display_name and before.display_avatar != after.display_avatar:
-        await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
-        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
+        elif before.display_name != after.display_name and before.display_avatar != after.display_avatar:
+            await deletedMessagesChannel.send(content = f"{before.display_name} changed their display name to {after.display_name}.")
+            await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.display_avatar}).")
 
 @client.event
 async def on_user_update(before, after):
     deletedMessagesChannel = client.get_channel(deletedMessagesChannelID)
-    if before.avatar != after.avatar:
-        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar from [this]({before.avatar}) to [this]({after.avatar}).")
+    if before.get_role(readConfig("role_verifiedRoleID")) is None and before.get_role(readConfig("role_adminRoleID")) is None:
+        if before.avatar != after.avatar:
+            await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar from [this]({before.avatar}) to [this]({after.avatar}).")
 
-    elif before.name != after.name:
-        await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
+        elif before.name != after.name:
+            await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
 
-    elif before.avatar != after.avatar and before.name != after.name:
-        await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.avatar}).")
-        await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
+        elif before.avatar != after.avatar and before.name != after.name:
+            await deletedMessagesChannel.send(content = f"<@{before.id}> changed their avatar to [this]({after.avatar}).")
+            await deletedMessagesChannel.send(content = f"{before.name} changed their username to {after.name}.")
 
 client.run(discordToken)
