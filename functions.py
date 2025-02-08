@@ -2,14 +2,63 @@ import time, random
 from string import Template
 import yaml
 
+def readConfig(key):
+    value = -1
+    try:
+        with open("config.yaml") as configFile:
+            config = yaml.safe_load(configFile)
+            if "channel_" in key:
+                value = config["channels"][key.removeprefix("channel_")]
+
+            elif "role_" in key:
+                value = config["roles"][key.removeprefix("role_")]
+
+            elif "text_" in key:
+                value = config["text"][key.removeprefix("text_")]
+
+            else:
+                value = config[key]
+
+            configFile.close()
+
+
+    except:
+        sys.exit("FATAL: Error reading config file.")
+
+    return value
+
+
 class bingus:
-    cache = readConfig("cache")
-    saveInterval = readConfig("saveInterval")
+    _cache = readConfig("cache")
+    _saveInterval = readConfig("saveInterval")
     _OTPTries = {}
     _OTPWaitlist = {}
     _OTPTokens = {}
+    print(_saveInterval)
 
-    if cache:
+    def writeCacheToFile(_saveInterval):
+        print(_saveInterval)
+        i = 0
+        while i < _saveInterval:
+            time.sleep(1)
+            print(i)
+            if i is _saveInterval - 1:
+                print("dumping")
+                try:
+                    with open(".cache.yaml") as cacheFile:
+                        cacheDict = {"OTPTries": _OTPTries, "OTPWaitlist": _OTPWaitlist, "OTPTokens": _OTPTokens}
+                        yaml.dump(cacheDict, cacheFile)
+                        cacheFile.close()
+                        print("dumped")
+
+                except:
+                    print("Error saving dictionaries to cache.")
+
+                i = 0
+            i += 1
+
+
+    if _cache:
         try:
             with open(".cache.yaml", "r") as cacheFile:
                 cacheDict = yaml.safe_load(cacheFile)
@@ -22,7 +71,7 @@ class bingus:
         except:
             print("Error reading cache file, continuing with empty dictionaries.")
 
-        writeCacheToFile()
+        writeCacheToFile(_saveInterval)
 
     else:
         print("Beginning with empty dictionaries.")
@@ -34,19 +83,20 @@ class bingus:
         except:
             return -1
 
-    def writeCacheToFile():
-        for i in range(0, saveInterval):
-            time.sleep(1)
-            if i == saveInterval:
-                try:
-                    with open(".cache.yaml") as cacheFile:
-                        cacheDict = {"OTPTries": _OTPTries, "OTPWaitlist": _OTPWaitlist, "OTPTokens": _OTPTokens}
-                        yaml.dump(cacheDict, cacheFile)
-                        cacheFile.close()
-                        i = 0
+    def readCachedTry(id):
+        try:
+            return _OTPTries[id]
 
-                except:
-                    print("Error saving dictionaries to cache.")
+        except:
+            return -1
+
+    def readCachedWaitlist(id):
+        try:
+            return _OTPWaitlist[id]
+
+        except:
+            return -1
+
 
 def readToken(line):
     token = ""
@@ -132,27 +182,3 @@ def getEmailHTML(user_name, OTP, club_title):
 
     return email
 
-def readConfig(key):
-    value = -1
-    try:
-        with open("config.yaml") as configFile:
-            config = yaml.safe_load(configFile)
-            if "channel_" in key:
-                value = config["channels"][key.removeprefix("channel_")]
-
-            elif "role_" in key:
-                value = config["roles"][key.removeprefix("role_")]
-
-            elif "text_" in key:
-                value = config["text"][key.removeprefix("text_")]
-
-            else:
-                value = config[key]
-
-            configFile.close()
-
-                
-    except:
-        sys.exit("FATAL: Error reading config file.")
-
-    return value
