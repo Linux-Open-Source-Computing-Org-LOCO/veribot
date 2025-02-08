@@ -2,6 +2,52 @@ import time, random
 from string import Template
 import yaml
 
+class bingus:
+    cache = readConfig("cache")
+    saveInterval = readConfig("saveInterval")
+    _OTPTries = {}
+    _OTPWaitlist = {}
+    _OTPTokens = {}
+
+    if cache:
+        try:
+            with open(".cache.yaml", "r") as cacheFile:
+                cacheDict = yaml.safe_load(cacheFile)
+                _OTPTries = cacheDict["OTPTries"]
+                _OTPWaitlist = cacheDict["OTPWaitlist"]
+                _OTPTokens = cacheDict["OTPTokens"]
+                cacheFile.close()
+                print("Cache successfully loaded.")
+
+        except:
+            print("Error reading cache file, continuing with empty dictionaries.")
+
+        writeCacheToFile()
+
+    else:
+        print("Beginning with empty dictionaries.")
+
+    def readCachedOTP(id):
+        try:
+            return _OTPTokens[id]
+
+        except:
+            return -1
+
+    def writeCacheToFile():
+        for i in range(0, saveInterval):
+            time.sleep(1)
+            if i == saveInterval:
+                try:
+                    with open(".cache.yaml") as cacheFile:
+                        cacheDict = {"OTPTries": _OTPTries, "OTPWaitlist": _OTPWaitlist, "OTPTokens": _OTPTokens}
+                        yaml.dump(cacheDict, cacheFile)
+                        cacheFile.close()
+                        i = 0
+
+                except:
+                    print("Error saving dictionaries to cache.")
+
 def readToken(line):
     token = ""
     with open(".tokens") as tokenfile:
