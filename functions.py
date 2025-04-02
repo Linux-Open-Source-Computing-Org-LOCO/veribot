@@ -16,7 +16,7 @@ def makeOTP():
     try:
         number = str(int(time.clock_gettime(time.CLOCK_REALTIME) / random.random()))
 
-        otp = number[0:5]
+        otp = number[-5:]
         int(otp)
 
     except:
