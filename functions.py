@@ -7,8 +7,6 @@ def readToken(line):
     with open(".tokens") as tokenfile:
        token = tokenfile.readlines()[line].rstrip()
 
-       # Just like an array, the lines start at 0, not 1.
-
     tokenfile.close()
     return token
 
@@ -26,11 +24,30 @@ def makeOTP():
 
     return otp
 
+def returnBlocklist():
+    blocklist = []
+    try:
+        with open(".blocklist") as blocklistFile:
+            blocklist = blocklistFile.readlines()
+            blocklistFile.close()
+
+            for i in range(0, len(blocklist)):
+                blocklist[i].rstrip().lower()
+
+                if blocklist[i][-1:len(blocklist[i])] == "\n":
+                    blocklist[i] = blocklist[i][:-1]
+
+    except:
+        print("Missing blocklist file.")
+
+    return blocklist
+
 def verifyTTUEmail(email):
     verified = False
+    email.lower()
 
     try:
-        if ("@ttu.edu" in email.lower() or "@ttuhsc.edu" in email.lower()) and (email.lower()[-3:len(email)] == "edu"):
+        if ("@ttu.edu" in email or "@ttuhsc.edu" in email) and (email[-3:len(email)] == "edu") and (email not in returnBlocklist()):
             verified = True
 
         else:
