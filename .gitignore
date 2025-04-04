@@ -4,6 +4,10 @@ __pycache__/*
 test.py
 .swp
 config.yaml
+<<<<<<< HEAD
 .cache.yaml
 .blocklist
 
+=======
+.blocklist
+>>>>>>> main
