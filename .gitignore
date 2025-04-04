@@ -5,3 +5,5 @@ test.py
 .swp
 config.yaml
 .cache.yaml
+.blocklist
+
