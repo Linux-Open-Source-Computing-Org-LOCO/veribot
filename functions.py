@@ -2,6 +2,16 @@ import time, random
 from string import Template
 import yaml
 from threading import Thread
+from pathlib import Path
+
+def getVersion():
+    version_path = Path(".git/HEAD").read_text()[5:].rstrip()
+    version = f"veribot {version_path[11:]}/{Path(f".git/{version_path}").read_text()[:6].rstrip()}"
+    return version
+
+def onReady():
+    version = getVersion()
+    print(version)
 
 def readConfig(key):
     value = -1
@@ -24,7 +34,7 @@ def readConfig(key):
 
 
     except:
-        sys.exit("FATAL: Error reading config file.")
+        print("Error in reading config file. Dummy output returned.")
 
     return value
 
@@ -63,7 +73,7 @@ class bingus:
         except:
             print("Error reading cache file, continuing with empty dictionaries.")
 
-        writeCacheToFile(_saveInterval)
+        writeCacheToFile()
 
     else:
         print("Beginning with empty dictionaries.")
@@ -197,7 +207,7 @@ def formatLogMessage(priority, user_id, message):
     if priority and user_id is not None:
         output = f"**[{when}] <@{user_id}>: {message}**"
 
-    elif !priority and user_id is not None:
+    elif not priority and user_id is not None:
         output = f"[{when}] <@{user_id}>: {message}"
 
     elif priority and user_id is None:
