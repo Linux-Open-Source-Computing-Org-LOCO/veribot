@@ -191,3 +191,17 @@ def getEmailHTML(user_name, OTP, club_title):
 
     return email
 
+def formatLogMessage(priority, user_id, message):
+    output = ""
+    when = time.strftime("%a, %d %b %Y %H:%M:%S -0600", time.localtime())
+    if priority and user_id is not None:
+        output = f"**[{when}] <@{user_id}>: {message}**"
+
+    elif !priority and user_id is not None:
+        output = f"[{when}] <@{user_id}>: {message}"
+
+    elif priority and user_id is None:
+        output = f"**[{when}]: {message}**"
+
+    else:
+        output = f"[{when}]: {message}"
