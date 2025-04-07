@@ -37,26 +37,17 @@ class bingus:
     _OTPTokens = {}
     print(_saveInterval)
 
-    def writeCacheToFile(_saveInterval):
-        print(_saveInterval)
-        i = 0
-        while i < _saveInterval:
-            time.sleep(1)
-            print(i)
-            if i is _saveInterval - 1:
-                print("dumping")
-                try:
-                    with open(".cache.yaml") as cacheFile:
-                        cacheDict = {"OTPTries": _OTPTries, "OTPWaitlist": _OTPWaitlist, "OTPTokens": _OTPTokens}
-                        yaml.dump(cacheDict, cacheFile)
-                        cacheFile.close()
-                        print("dumped")
+    def writeCacheToFile():
+        print("Writing cache...")
+        try:
+            with open(".cache.yaml", "w") as cacheFile:
+                cacheDict = {"OTPTries": _OTPTries, "OTPWaitlist": _OTPWaitlist, "OTPTokens": _OTPTokens}
+                yaml.dump(cacheDict, cacheFile)
+                cacheFile.close()
+                print("Done")
 
-                except:
-                    print("Error saving dictionaries to cache.")
-
-                i = 0
-            i += 1
+        except:
+            print("Error saving dictionaries to cache.")
 
 
     if _cache:
