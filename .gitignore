@@ -6,4 +6,5 @@ test.py
 config.yaml
 .cache.yaml
 .main.py.kate-swp
+.functions.py.kate-swp
 .blocklist
