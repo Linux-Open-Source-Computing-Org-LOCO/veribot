@@ -6,7 +6,7 @@ from pathlib import Path
 
 def getVersion():
     version_path = Path(".git/HEAD").read_text()[5:].rstrip()
-    version = f"veribot {version_path[11:]}/{Path(f".git/{version_path}").read_text()[:6].rstrip()}"
+    version = f"veribot {version_path[11:]}/{Path(f".git/{version_path}").read_text()[:7].rstrip()}"
     return version
 
 def onReady():
