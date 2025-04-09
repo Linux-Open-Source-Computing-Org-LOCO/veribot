@@ -120,6 +120,21 @@ async def otp(interaction: discord.Interaction, otp: str):
         await logChannel.send(content = f"<@{member.id}> attempted to enter an OTP without verifying.")
         await interaction.response.send_message(f"{member}, it appears as though you have not run `/verify`.")
 
+@client.tree.command()
+@app_commands.describe(email = "The email you wish to add or remove from the blocklist.")
+@app_commands.choices(action = [
+    Choice(name = "list", value = 1),
+    Choice(name = "add", value = 2),
+    Choice(name = "remove", value = 3)
+    ])
+async def blocklist(interation: discord.Interaction, action: Choice[int], email: typing.Optional[str]):
+    if interaction.user.get_role(readConfig("role_adminRoleID")) is not None:
+        match action:
+            case 1:
+                await interaction.response.send_message(f"Here is the blocklist, {interaction.user}.\n{returnBlocklist()}")
+
+    else:
+        await interaction.response.send_message(f"{interaction.user}, you are not authorized to use this command.", ephemeral = True)
 
 @client.event
 async def on_message(message):

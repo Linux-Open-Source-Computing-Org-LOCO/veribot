@@ -13,6 +13,7 @@ def onReady():
     version = getVersion()
     print(version)
 
+
 def readConfig(key):
     value = -1
     try:
